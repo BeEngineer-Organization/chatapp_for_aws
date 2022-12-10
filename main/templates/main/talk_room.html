@@ -1,0 +1,85 @@
+{% extends "main/base.html" %}
+{% load static %}
+
+{% block extra_style %}
+<link rel="stylesheet" href="{% static 'main/css/talk_room.css' %}">
+{% endblock %}
+
+{% block header_title %}{{ friend.username }}{% endblock %}
+
+{% block talk_room %}
+<a href="{% url 'friends' %}" class="back-button"><i class="fas fa-angle-left"></i></a>
+<a href="" class="reload-button">更新</a>
+{% endblock %}
+
+{% block content %}
+<div class="talk-room">
+    {# 過去のチャットの表示部分 #}
+    
+    <!-- 読み込み時に最下行までスクロールさせるためにdivの枠を追加 -->
+    <div id="message-area">
+    
+        <ul class="chatboard" id="chatboard">
+            {# チャットを古い順に for 文で表示します #}
+            {% for talk in talks %}
+
+                <!-- 送信者が誰かによって分岐 -->
+                <!-- 分岐することで、classが変わっている -->
+
+                <!-- viewsから渡しているのはfriend（＝相手の情報）だったので、先に相手を分岐 -->
+                <!-- もし相手からのメッセージなら -->
+                {% if talk.sender == friend %}
+                    <li class="chatboard__item chatboard__item--friend">
+
+                        <!-- 左右に分けるため、ユーザー名表示が不要なので削除 -->
+
+                        <!-- <p class="chatboard__username chatboard__username--friend">
+                            ＞{{ talk.sender.username }}
+                        </p> -->
+                        <p class="chatboard__message chatboard__message--friend">{{ talk.message }}</p>
+                        <p class="chatboard__time chatboard__time--friend">
+                            {{ talk.time|date:"m/d" }}</br>
+                            {{ talk.time|date:"H:i" }}
+                        </p>
+                    </li>
+
+                <!-- もし自分の送ったメッセージなら -->
+                {% else %}
+                    <li class="chatboard__item chatboard__item--me">
+
+                        <!-- 左右に分けるため、ユーザー名表示が不要なので削除 -->
+
+                        <!-- <p class="chatboard__username chatboard__username--me">
+                            ＞{{ talk.sender.username }}
+                        </p> -->
+                        <p class="chatboard__message chatboard__message--me">{{ talk.message }}</p>
+                        <p class="chatboard__time chatboard__time--me">
+                            {{ talk.time|date:"m/d" }}</br>
+                            {{ talk.time|date:"H:i" }}
+                        </p>
+                    </li>
+                {% endif %}
+            
+            {% endfor %}
+        </ul>
+
+    </div>
+
+    {# チャットの送信フォーム #}
+    <form action="{% url 'talk_room' friend.id %}" method="POST" class="message-form">
+        {% csrf_token %}
+        {{ form.message }}
+        <button type="submit" class="message-form__submit">送信</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block footer %}{% endblock %}
+
+<!-- 読み込み時に最下行までスクロールさせるために追加 -->
+{% block extra_js %}
+<script>
+    let target = document.getElementById('chatboard');
+    target.scrollIntoView(false);
+</script>
+{% endblock %}
