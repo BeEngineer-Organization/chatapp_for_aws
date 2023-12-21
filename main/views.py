@@ -68,9 +68,6 @@ def friends(request):
     context = {"friends": friends}
     return render(request, "main/friends.html", context)
 
-def talk_room(request, user_id):
-    return render(request, "main/talk_room.html")
-
 
 @login_required
 def settings(request):
